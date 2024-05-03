@@ -94,6 +94,7 @@ services:
 
     engineblock.configuration.stepup.endpoint:
         class: OpenConext\EngineBlock\Stepup\StepupEndpoint
+        public: true
         arguments:
             - "https://engine.dev.openconext.local/authentication/stepup/metadata"
             - "https://engine.dev.openconext.local/functional-testing/gateway/second-factor-only/single-sign-on"
