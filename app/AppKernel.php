@@ -5,7 +5,7 @@ use Symfony\Component\Config\Loader\LoaderInterface;
 
 class AppKernel extends Kernel
 {
-    public function registerBundles()
+    public function registerBundles(): iterable
     {
         $bundles = [
             // Core Symfony
@@ -13,11 +13,6 @@ class AppKernel extends Kernel
             new Symfony\Bundle\SecurityBundle\SecurityBundle(),
             new Symfony\Bundle\TwigBundle\TwigBundle(),
             new Symfony\Bundle\MonologBundle\MonologBundle(),
-            new Symfony\Bundle\SwiftmailerBundle\SwiftmailerBundle(),
-
-            // Sensio helpers
-            new Sensio\Bundle\FrameworkExtraBundle\SensioFrameworkExtraBundle(),
-            new Sensio\Bundle\GeneratorBundle\SensioGeneratorBundle(),
 
             // Doctrine integration
             new Doctrine\Bundle\DoctrineBundle\DoctrineBundle(),
@@ -36,6 +31,7 @@ class AppKernel extends Kernel
 
             // own bundles
             $bundles[] = new OpenConext\EngineBlockFunctionalTestingBundle\OpenConextEngineBlockFunctionalTestingBundle();
+            $bundles[] = new FriendsOfBehat\SymfonyExtension\Bundle\FriendsOfBehatSymfonyExtensionBundle();
         }
 
         return $bundles;
@@ -43,7 +39,7 @@ class AppKernel extends Kernel
 
     public function registerContainerConfiguration(LoaderInterface $loader)
     {
-        $configurationDirectory = $this->getRootDir() . '/config/';
+        $configurationDirectory = $this->getProjectDir() . '/app/config/';
         $loader->load($configurationDirectory . 'config_' . $this->getEnvironment() . '.yml');
 
         $localConfiguration = $configurationDirectory . 'config_local.yml';
@@ -58,7 +54,7 @@ class AppKernel extends Kernel
         $loader->load(($localConfiguration));
     }
 
-    public function getCacheDir()
+    public function getCacheDir(): string
     {
         // In the dev & test environments use a folder outside the shared filesystem. This greatly improves cache clear
         // and warmup time.
@@ -66,11 +62,11 @@ class AppKernel extends Kernel
             return sprintf('/tmp/engineblock/cache/%s', $this->getEnvironment());
         }
 
-        return $this->rootDir . '/cache/' . $this->environment;
+        return $this->getProjectDir() . '/app/cache/' . $this->environment;
     }
 
-    public function getLogDir()
+    public function getLogDir(): string
     {
-        return $this->rootDir . '/logs/' . $this->environment;
+        return $this->getProjectDir() . '/app/logs/' . $this->environment;
     }
 }

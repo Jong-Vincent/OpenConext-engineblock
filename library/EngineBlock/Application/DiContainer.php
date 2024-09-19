@@ -21,13 +21,14 @@ use OpenConext\EngineBlock\Metadata\Factory\Factory\ServiceProviderFactory;
 use OpenConext\EngineBlock\Metadata\LoaRepository;
 use OpenConext\EngineBlock\Metadata\MetadataRepository\MetadataRepositoryInterface;
 use OpenConext\EngineBlock\Service\MfaHelperInterface;
+use OpenConext\EngineBlock\Service\ReleaseAsEnforcer;
 use OpenConext\EngineBlock\Service\TimeProvider\TimeProviderInterface;
 use OpenConext\EngineBlock\Stepup\StepupEntityFactory;
 use OpenConext\EngineBlock\Stepup\StepupGatewayCallOutHelper;
 use OpenConext\EngineBlock\Validator\AllowedSchemeValidator;
 use Symfony\Component\DependencyInjection\ContainerInterface as SymfonyContainerInterface;
 
-class EngineBlock_Application_DiContainer extends Pimple
+class EngineBlock_Application_DiContainer extends Pimple\Container
 {
     const ATTRIBUTE_METADATA                    = 'attributeMetadata';
     const ATTRIBUTE_DEFINITIONS_DENORMALIZED    = 'attributeDefinitionsDenormalized';
@@ -282,11 +283,19 @@ class EngineBlock_Application_DiContainer extends Pimple
     }
 
     /**
-     * @return Swift_Mailer
+     * @return \Symfony\Component\Mailer\MailerInterface
      */
     public function getMailer()
     {
-        return $this->container->get('mailer');
+        return $this->container->get('app.mailer');
+    }
+
+    /**
+     * @return ReleaseAsEnforcer
+     */
+    public function getReleaseAsEnforcer()
+    {
+        return $this->container->get(ReleaseAsEnforcer::class);
     }
 
     /**
@@ -562,5 +571,21 @@ class EngineBlock_Application_DiContainer extends Pimple
     public function getAuthLogAttributes()
     {
         return $this->container->getParameter('auth.log.attributes');
+    }
+
+    /**
+     * @return EngineBlock_Saml2_NameIdResolver
+     */
+    public function getNameIdResolver()
+    {
+        return new EngineBlock_Saml2_NameIdResolver($this->container->get('engineblock.compat.logger'));
+    }
+
+    /**
+     * @return EngineBlock_Arp_NameIdSubstituteResolver
+     */
+    public function getNameIdSubstituteResolver()
+    {
+        return new EngineBlock_Arp_NameIdSubstituteResolver($this->container->get('engineblock.compat.logger'));
     }
 }
