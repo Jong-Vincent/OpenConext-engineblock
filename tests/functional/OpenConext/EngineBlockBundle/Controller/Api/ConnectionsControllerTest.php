@@ -377,8 +377,8 @@ class ConnectionsControllerTest extends WebTestCase
         $this->clearMetadataFixtures();
 
         $client = static::createClient([], [
-            'PHP_AUTH_USER' => $this->getContainer()->getParameter('api.users.metadataPush.username'),
-            'PHP_AUTH_PW' => $this->getContainer()->getParameter('api.users.metadataPush.password'),
+            'PHP_AUTH_USER' => $this->phpAuthUser,
+            'PHP_AUTH_PW' => $this->phpAuthPassword,
         ]);
 
         // The second 'step' will overwrite the entity id for the one entry. It only changes some case, resulting in
