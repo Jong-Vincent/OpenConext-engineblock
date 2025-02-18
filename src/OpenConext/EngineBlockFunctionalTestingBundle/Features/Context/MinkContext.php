@@ -26,7 +26,6 @@ use RobRichards\XMLSecLibs\XMLSecurityDSig;
 use RuntimeException;
 use SAML2\XML\mdui\Common;
 use SAML2\XML\shibmd\Scope;
-use function count;
 
 /**
  * Mink-enabled context.
@@ -46,6 +45,19 @@ class MinkContext extends BaseMinkContext
     {
         $driver = $this->getSession()->getDriver();
         $driver->setCookie('XDEBUG_SESSION', 'PHPSTORM');
+    }
+
+
+    /**
+     * @Then /^printDebugDie$/
+     */
+    public function debugout()
+    {
+        echo PHP_EOL;
+        echo $this->getMink()->getSession()->getCurrentUrl();
+        echo PHP_EOL . PHP_EOL;
+        echo $this->getMink()->getSession()->getPage()->getContent();
+        die;
     }
 
     /**
@@ -156,6 +168,38 @@ class MinkContext extends BaseMinkContext
                 'The internal-collabPersonId should not be present',
                 $this->getSession()
             );
+        }
+    }
+
+    /**
+     * @Then /^the SessionIndex should match the Assertion ID$/
+     */
+    public function theSessionIndexShouldMatchTheAssertionID()
+    {
+        $document = new DOMDocument();
+        $document->loadXML($this->getSession()->getPage()->getContent());
+        $xpathObj = new DOMXPath($document);
+        $xpathObj->registerNamespace('ds', XMLSecurityDSig::XMLDSIGNS);
+        $xpathObj->registerNamespace('mdui', Common::NS);
+        $xpathObj->registerNamespace('shibmd', Scope::NS);
+        $nodeListAssertion = $xpathObj->query('/samlp:Response/saml:Assertion[@ID]');
+        $nodeListAuthStatement = $xpathObj->query('/samlp:Response/saml:Assertion/saml:AuthnStatement[@SessionIndex]');
+
+        if ($nodeListAssertion->count() == 0) {
+            throw new ExpectationException('The assertion ID was not found', $this->getSession());
+        }
+
+        if ($nodeListAuthStatement->count() == 0) {
+            throw new ExpectationException('The SessionIndex wasnot found', $this->getSession());
+        }
+
+        $assertionID = $nodeListAssertion->item(0)->attributes->getNamedItem('ID')->value;
+        $sessionIndex = $nodeListAuthStatement->item(0)->attributes->getNamedItem('SessionIndex')->value;
+        if ($sessionIndex == "") {
+            throw new ExpectationException('The SessionIndex was empty', $this->getSession());
+        }
+        if ($assertionID !== $sessionIndex) {
+            throw new ExpectationException('The SessionIndex was not the same as the assertion ID', $this->getSession());
         }
     }
 

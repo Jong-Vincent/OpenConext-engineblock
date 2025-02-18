@@ -4,7 +4,7 @@ Feature:
   I need EB to filter malicious asc values in AuthnRequests
 
   Background:
-    Given an EngineBlock instance on "vm.openconext.org"
+    Given an EngineBlock instance on "dev.openconext.local"
     And no registered SPs
     And no registered Idps
     And an Identity Provider named "AlwaysAuth"
@@ -15,6 +15,7 @@ Feature:
 
   Scenario: The Malicious SP AuthnRequest is denied by EngineBlock
     Given I log in at "Malicious SP"
+    And printDebugDie
     Then I should see "Error - Unsupported URI scheme in ACS location"
 
   Scenario: The Malconfigured SP AuthnRequest is denied by EngineBlock
